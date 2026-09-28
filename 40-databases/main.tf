@@ -74,14 +74,14 @@ resource "terraform_data" "redis" {
    #File provisioner block to copy a local configuration file
   provisioner "file" {
     source      = "bootstrap.sh"        # Path on your local machine
-    destination = "/tmp/bootstrap.sh redis"         # Path on the remote machine
+    destination = "/tmp/bootstrap.sh "         # Path on the remote machine
   }
 
 
   provisioner "remote-exec" {
     inline = [ #inline means we can exceute multiple cmds
     "chmod+x bootstrap.sh",
-    "sudo sh /tmp/bootstrap.sh"
+    "sudo sh /tmp/bootstrap.sh redis"
 
      ]
   }
@@ -127,7 +127,52 @@ resource "terraform_data" "mysql" {
   provisioner "remote-exec" {
     inline = [ #inline means we can exceute multiple cmds
     "chmod+x bootstrap.sh",
-    "sudo sh /tmp/bootstrap.sh mysql"
+    "sudo sh /tmp/bootstrap.sh mysql ${var.environment}"
+
+     ]
+  }
+}
+
+
+resource "aws_instance" "rabbitmq" {
+  ami           = local.ami_id
+  instance_type = "t3.micro"
+  subnet_id = local.database_subnet_ids
+  vpc_security_group_ids = [local.rabbitmq_sg_id]
+ 
+
+  tags = merge(
+    {
+        Name = "${var.project}-${var.environment}-rabbitmq"
+    },
+    local.common_tags
+  )
+}
+
+ 
+resource "terraform_data" "rabbitmq" {
+  triggers_replace = [
+    aws_instance.redis.id 
+  ]
+
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    password = "DevOps321"
+    host        = aws_instance.rabbitmq.private_ip
+  }
+
+   #File provisioner block to copy a local configuration file
+  provisioner "file" {
+    source      = "bootstrap.sh"        # Path on your local machine
+    destination = "/tmp/bootstrap.sh "         # Path on the remote machine
+  }
+
+
+  provisioner "remote-exec" {
+    inline = [ #inline means we can exceute multiple cmds
+    "chmod+x bootstrap.sh",
+    "sudo sh /tmp/bootstrap.sh rabbitmq dev"
 
      ]
   }

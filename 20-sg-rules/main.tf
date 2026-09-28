@@ -69,3 +69,15 @@ resource "aws_security_group_rule" "mysql_bastion" { #mysql accepecting connecti
   security_group_id = local.mysql_sg_id
 
 }
+
+resource "aws_security_group_rule" "rabbitmq_bastion" { #rabbitmq accepecting connections from bastion
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  #where traffic is coming from
+  source_security_group_id = local.bastion_sg_id
+  #which SG you are creating this rule 
+  security_group_id = local.rabbitmq_sg_id
+
+}
