@@ -9,8 +9,7 @@ terraform {
     bucket         = "ismail-remote-state-dev" # our s3 storage bucket name
     key            = "roboshop-dev-sg"            
     region         = "us-east-1"                                            
-    encrypt        = true 
-    use_lockfile = true                                   
+    encrypt        = true                                  
   }
 
 }
