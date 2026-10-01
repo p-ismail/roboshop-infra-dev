@@ -81,3 +81,39 @@ resource "aws_security_group_rule" "rabbitmq_bastion" { #rabbitmq accepecting co
   security_group_id = local.rabbitmq_sg_id
 
 }
+
+resource "aws_security_group_rule" "backend_alb_bastion" { #backend_alb accepecting connections from bastion
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  #where traffic is coming from
+  source_security_group_id = local.bastion_sg_id
+  #which SG you are creating this rule 
+  security_group_id = local.backend_alb_sg_id
+
+}
+
+resource "aws_security_group_rule" "catalogue_bastion" { #catalogue accepecting connections from bastion
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  #where traffic is coming from
+  source_security_group_id = local.bastion_sg_id
+  #which SG you are creating this rule 
+  security_group_id = local.catalogue_sg_id
+
+}
+
+resource "aws_security_group_rule" "catalogue_backend_alb" { #catalogue accepecting connections from backendalb
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  #where traffic is coming from
+  source_security_group_id = local.backend_alb_sg_id
+  #which SG you are creating this rule 
+  security_group_id = local.catalogue_sg_id
+
+}
